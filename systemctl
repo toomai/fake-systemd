@@ -370,6 +370,7 @@ function main(){
 
 Query or send control commands to the systemd manager.
 
+  --user              Run with user unit paths
   -h --help           Show this help
 
 Unit Commands:
@@ -385,12 +386,23 @@ Unit File Commands:
   is-enabled NAME...              Check whether unit files are enabled
 "
 
+    # Check for --user flag
+    if [ "$1" == "--user" ]; then
+        local UNIT_PATHS=(
+            ~/.config/systemd/user/
+            /etc/systemd/user/
+            /usr/lib/systemd/user/
+        )
+        shift  # Remove --user from arguments
+    else
+        local UNIT_PATHS=(
+            /etc/systemd/system/
+            /usr/lib/systemd/system/
+        )
+    fi
+
     local ACTION="$1"
     local UNITS="${@:2}"
-    local UNIT_PATHS=(
-        /etc/systemd/system/
-        /usr/lib/systemd/system/
-    )
 
     for UNIT in ${UNITS[@]}; do
         exec_action $ACTION $UNIT
